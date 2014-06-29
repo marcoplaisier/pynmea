@@ -67,7 +67,6 @@ class TestExamples(unittest.TestCase):
         result2 = gen.send(timestamp.replace(seconds=+1))
         self.assertEqual(result2, expected2)
 
-
     def tearDown(self):
         pass
 
