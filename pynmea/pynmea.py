@@ -16,7 +16,7 @@ class NMEA(object):
         else:
             time = None
 
-        self.warning = ('A' if params.get('warning', False) else 'V')
+        self.warning = params.get('warning', 'V')
         self.latitude = params.get('latitude', '')
         self.latitude_indicator = params.get('latitude_indicator', '')
         self.longitude = params.get('longitude', '')
@@ -76,7 +76,12 @@ class NMEA(object):
             self._timestamp = yield str(self)
             if self._timestamp is not None:
                 self.date = self._timestamp.format('DDMMYY')
+                print(self.time)
                 self.time = self._timestamp.format('HHmmss.SSS')
+                print(self.time)
+
+    def get_timestamp(self):
+        return self._timestamp
 
     @staticmethod
     def calculate_checksum(s):

@@ -51,6 +51,23 @@ class TestExamples(unittest.TestCase):
         result = nmea.calculate_checksum('ab')
         self.assertEqual(expected, result)
 
+    def test_string_generator(self):
+        expected1 = '$GPRMC,155123.0,A,,,,,,,200407,,*38\r\n'
+        expected2 = '$GPRMC,155124.0,A,,,,,,,200407,,*3f\r\n'
+        nmea = NMEA({
+            'warning': 'A',
+            'time': 155123.0,
+            'date': 200407
+        })
+        gen = nmea.get_nmea_strings()
+        result1 = gen.send(None)
+        self.assertEqual(result1, expected1)
+
+        timestamp = nmea.get_timestamp()
+        result2 = gen.send(timestamp.replace(seconds=+1))
+        self.assertEqual(result2, expected2)
+
+
     def tearDown(self):
         pass
 
