@@ -59,7 +59,7 @@ class TestExamples(unittest.TestCase):
             'time': 155123.0,
             'date': 200407
         })
-        gen = nmea.get_nmea_strings()
+        gen = nmea.get_nmea_string()
         result1 = gen.send(None)
         self.assertEqual(result1, expected1)
 
