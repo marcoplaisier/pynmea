@@ -7,7 +7,7 @@ import time
 try:
     import configparser
 except ImportError:
-    import ConfigParser
+    import ConfigParser as configparser
 import arrow
 
 
