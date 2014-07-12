@@ -4,7 +4,10 @@ from __future__ import print_function, absolute_import
 from ctypes import cdll, c_ubyte, util
 import argparse
 import time
-import configparser
+try:
+    import configparser
+except ImportError:
+    import ConfigParser
 import arrow
 
 
