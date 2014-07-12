@@ -142,19 +142,19 @@ if __name__ == '__main__':
         config = configparser.ConfigParser()
         config.read('example.ini')
 
-    params = {'warning': config['GPS']['warning'],
-              'latitude': config['GPS']['latitude'],
-              'latitude_indicator': config['GPS']['latitude_indicator'],
-              'longitude': config['GPS']['longitude'],
-              'longitude_indicator': config['GPS']['longitude_indicator'],
-              'speed': config['GPS']['speed'],
-              'course': config['GPS']['course'],
-              'magnetic_variation': config['GPS']['magnetic_variation'],
-              'magnetic_variation_indicator': config['GPS']['magnetic_variation_indicator'],
-              'period': config['STEP']['quantity'],
-              'step-size': config['STEP']['step-size'],
-              'time': config['START']['start-time'],
-              'date': config['START']['start-date']}
+    params = {'warning': config.get('GPS', 'warning'),
+              'latitude': config.get('GPS', 'latitude'),
+              'latitude_indicator': config.get('GPS', 'latitude_indicator'),
+              'longitude': config.get('GPS', 'longitude'),
+              'longitude_indicator':config.get('GPS', 'longitude_indicator'),
+              'speed': config.get('GPS', 'speed'),
+              'course': config.get('GPS', 'course'),
+              'magnetic_variation': config.get('GPS', 'magnetic_variation'),
+              'magnetic_variation_indicator': config.get('GPS', 'magnetic_variation_indicator'),
+              'period': config.get('STEP', 'quantity'),
+              'step-size': config.get('STEP', 'step-size'),
+              'time': config.get('START', 'start-time'),
+              'date': config.get('START', 'start-date')}
 
     pynmea = NMEA(params)
     gen = pynmea.get_nmea_string()
