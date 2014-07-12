@@ -161,7 +161,8 @@ if __name__ == '__main__':
     s = gen.send(None)
     for i in range(0, 10):
         print(s)
-        data_list = c_ubyte * len(s)
-        data = data_list(*s)
+        b = bytearray(s)
+        data_list = c_ubyte * len(b)
+        data = data_list(*b)
         pynmea.handle.serialPuts(data)
         s = gen.send(None)
