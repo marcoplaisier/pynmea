@@ -159,7 +159,7 @@ if __name__ == '__main__':
     pynmea = NMEA(params)
     gen = pynmea.get_nmea_string()
     s = gen.send(None)
-    for i in range(0, 10):
+    while True:
         print(s)
         b = bytearray(s)
         data_list = c_ubyte * len(b)
