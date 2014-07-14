@@ -115,11 +115,11 @@ class NMEA(object):
 
     def load_library(self):
         lib_name = util.find_library('wiringPi')
-        print(lib_name)
+        print('Lib name: {}'.format(lib_name))
         self.handle = cdll.LoadLibrary(lib_name)
-        print(self.handle)
+        print('Handle: {}'.format(self.handle))
         result = self.handle.serialOpen('/dev/ttyAMA0', 4800)
-        print(result)
+        print('Open serial interface: {}'.format(result))
 
 
 if __name__ == '__main__':
@@ -168,5 +168,6 @@ if __name__ == '__main__':
         b = bytearray(s, 'ascii')
         data_list = c_ubyte * len(b)
         data = data_list(*b)
-        pynmea.handle.serialPuts(4, data)
+        result = pynmea.handle.serialPuts(4, data)
+        print('Result: {}'.format(result))
         s = gen.send(None)
