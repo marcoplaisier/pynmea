@@ -29,6 +29,7 @@ class NMEA(object):
         self.period = params.get('period', None)
         self.stepsize = int(params.get('step-size', None))
         self.load_library()
+        self.handle = None
 
     @staticmethod
     def timestamp(date, time):
@@ -114,8 +115,11 @@ class NMEA(object):
 
     def load_library(self):
         lib_name = util.find_library('wiringPi')
+        print(lib_name)
         self.handle = cdll.LoadLibrary(lib_name)
-        self.handle.serialOpen(0, 4800)
+        print(self.handle)
+        result = self.handle.serialOpen(0, 4800)
+        print(result)
 
 
 if __name__ == '__main__':
@@ -161,8 +165,8 @@ if __name__ == '__main__':
     s = gen.send(None)
     while True:
         print(s)
-        b = bytearray(s)
+        b = bytearray(s, 'ascii')
         data_list = c_ubyte * len(b)
         data = data_list(*b)
-        pynmea.handle.serialPuts(data)
+        pynmea.handle.serialPuts(4, data)
         s = gen.send(None)
