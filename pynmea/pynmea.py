@@ -118,7 +118,7 @@ class NMEA(object):
         print(lib_name)
         self.handle = cdll.LoadLibrary(lib_name)
         print(self.handle)
-        result = self.handle.serialOpen(0, 4800)
+        result = self.handle.serialOpen('/dev/ttyAMA0', 4800)
         print(result)
 
 
