@@ -28,8 +28,9 @@ class NMEA(object):
         self.magnetic_variation_indicator = params.get('magnetic_variation_indicator', '')
         self.period = params.get('period', None)
         self.stepsize = int(params.get('step-size', None))
-        self.load_library()
         self.handle = None
+        self.fd = -1
+        self.load_library()
 
     @staticmethod
     def timestamp(date, time):
@@ -48,13 +49,10 @@ class NMEA(object):
         if not (d or t):
             timestamp = None
         elif d and t:
-            timestamp = arrow.get(year=d.year,
-                                  month=d.month,
-                                  day=d.day,
-                                  hour=t.hour,
-                                  minute=t.minute,
-                                  second=t.second,
-                                  microsecond=t.microsecond)
+            timestamp = d.get(hour=t.hour,
+                              minute=t.minute,
+                              second=t.second,
+                              microsecond=t.microsecond)
         elif not d:
             timestamp = date.replace()
         elif not t:
@@ -118,8 +116,8 @@ class NMEA(object):
         print('Lib name: {}'.format(lib_name))
         self.handle = cdll.LoadLibrary(lib_name)
         print('Handle: {}'.format(self.handle))
-        result = self.handle.serialOpen('/dev/ttyAMA0', 4800)
-        print('Open serial interface: {}'.format(result))
+        self.fd = self.handle.serialOpen('/dev/ttyAMA0', 2400)
+        print('Open serial interface: {}'.format(self.fd))
 
 
 if __name__ == '__main__':
@@ -168,6 +166,6 @@ if __name__ == '__main__':
         b = bytearray(s, 'ascii')
         data_list = c_ubyte * len(b)
         data = data_list(*b)
-        result = pynmea.handle.serialPuts(4, data)
+        result = pynmea.handle.serialPuts(pynmea.fd, data)
         print('Result: {}'.format(result))
         s = gen.send(None)
