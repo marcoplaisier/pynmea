@@ -27,7 +27,7 @@ class NMEA(object):
         self.magnetic_variation = params.get('magnetic_variation', '')
         self.magnetic_variation_indicator = params.get('magnetic_variation_indicator', '')
         self.period = params.get('period', None)
-        self.stepsize = int(params.get('step-size', None))
+        self.stepsize = int(params.get('step-size', 0))
         self.handle = None
         self.fd = -1
         self.load_library()
