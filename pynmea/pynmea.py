@@ -122,20 +122,8 @@ class NMEA(object):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="PNMEA creates NMEA GPS strings or parses them")
-    group = parser.add_mutually_exclusive_group()
-    group.add_argument("--file", help="Read settings from a configuration file")
+    parser.add_argument("--file", help="Read settings from a configuration file")
 
-    subgroup = group.add_argument_group()
-    subgroup.add_argument("--starttime",
-                          help="Set the start time and date used in the NMEA string (eg. 2014-03-06 11:15:01.125)",
-                          default='2014-01-01 00:00:00.000')
-    subgroup.add_argument("--stepsize",
-                          help="Set the size of period to increase. Eg. 5",
-                          type=int,
-                          default=1)
-    subgroup.add_argument("--period",
-                          help="Set the period to increase. Eg. year",
-                          default='second')
     args = parser.parse_args()
     if args.file:
         config = configparser.ConfigParser()
