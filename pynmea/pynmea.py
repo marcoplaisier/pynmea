@@ -4,11 +4,17 @@ from __future__ import print_function, absolute_import
 from ctypes import cdll, c_ubyte, util
 import argparse
 import time
+
 try:
     import configparser
 except ImportError:
     import ConfigParser as configparser
 import arrow
+
+TTY = '/dev/ttyAMA0'
+SLEEP_TIME = 1
+DEFAULT_STEP_SIZE = 0
+BAUD_RATE = 2400
 
 
 class NMEA(object):
@@ -27,7 +33,7 @@ class NMEA(object):
         self.magnetic_variation = params.get('magnetic_variation', '')
         self.magnetic_variation_indicator = params.get('magnetic_variation_indicator', '')
         self.period = params.get('period', None)
-        self.stepsize = int(params.get('step-size', 0))
+        self.stepsize = int(params.get('step-size', DEFAULT_STEP_SIZE))
         self.handle = None
         self.fd = -1
         self.load_library()
@@ -59,27 +65,27 @@ class NMEA(object):
         return timestamp
 
     def __str__(self):
-        s = str('{self.protocol},'
-                '{self._timestamp:HHmmss.SSS},'
-                '{self.warning},'
-                '{self.latitude},'
-                '{self.latitude_indicator},'
-                '{self.longitude},'
-                '{self.longitude_indicator},'
-                '{self.speed},'
-                '{self.course},'
-                '{self._timestamp:DDMMYY},'
-                '{self.magnetic_variation},'
-                '{self.magnetic_variation_indicator}')
+        template = str('{self.protocol},'
+                              '{self._timestamp:HHmmss.SSS},'
+                              '{self.warning},'
+                              '{self.latitude},'
+                              '{self.latitude_indicator},'
+                              '{self.longitude},'
+                              '{self.longitude_indicator},'
+                              '{self.speed},'
+                              '{self.course},'
+                              '{self._timestamp:DDMMYY},'
+                              '{self.magnetic_variation},'
+                              '{self.magnetic_variation_indicator}')
 
-        s = s.format(self=self)
+        filled_template = template.format(self=self)
 
-        return '$' + s + '*' + self.calculate_checksum(s) + '\r\n'
+        return '$' + filled_template + '*' + self.calculate_checksum(filled_template) + '\r\n'
 
     def get_nmea_string(self):
         while True:
             timestamp = yield str(self)
-            time.sleep(1)
+            time.sleep(SLEEP_TIME)
 
             if timestamp is not None:
                 self._timestamp = timestamp
@@ -103,10 +109,10 @@ class NMEA(object):
         return self._timestamp
 
     @staticmethod
-    def calculate_checksum(s):
+    def calculate_checksum(text):
         checksum = 0
-        for c in s:
-            checksum ^= ord(c)
+        for character in text:
+            checksum ^= ord(character)
 
         return str(hex(checksum)).replace('0x', '')
 
@@ -115,27 +121,23 @@ class NMEA(object):
         print('Lib name: {}'.format(lib_name))
         self.handle = cdll.LoadLibrary(lib_name)
         print('Handle: {}'.format(self.handle))
-        self.fd = self.handle.serialOpen('/dev/ttyAMA0', 2400)
+        self.fd = self.handle.serialOpen(TTY, BAUD_RATE)
         print('Open serial interface: {}'.format(self.fd))
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="PNMEA creates NMEA GPS strings or parses them")
-    parser.add_argument("--file", help="Read settings from a configuration file")
+    parser.add_argument("--file", help="Read settings from a configuration file", default='example.ini')
 
     args = parser.parse_args()
-    if args.file:
-        config = configparser.ConfigParser()
-        config.read(args.file)
-    else:
-        config = configparser.ConfigParser()
-        config.read('example.ini')
+    config = configparser.ConfigParser()
+    config.read(args.file)
 
     params = {'warning': config.get('GPS', 'warning'),
               'latitude': config.get('GPS', 'latitude'),
               'latitude_indicator': config.get('GPS', 'latitude_indicator'),
               'longitude': config.get('GPS', 'longitude'),
-              'longitude_indicator':config.get('GPS', 'longitude_indicator'),
+              'longitude_indicator': config.get('GPS', 'longitude_indicator'),
               'speed': config.get('GPS', 'speed'),
               'course': config.get('GPS', 'course'),
               'magnetic_variation': config.get('GPS', 'magnetic_variation'),
@@ -147,12 +149,12 @@ if __name__ == '__main__':
 
     pynmea = NMEA(params)
     gen = pynmea.get_nmea_string()
-    s = gen.send(None)
+    pynmea_string = gen.send(None)
     while True:
-        print(s)
-        b = bytearray(s, 'ascii')
-        data_list = c_ubyte * len(b)
-        data = data_list(*b)
+        print(pynmea_string)
+        b_array = bytearray(pynmea_string, 'ascii')
+        data_list = c_ubyte * len(b_array)
+        data = data_list(*b_array)
         result = pynmea.handle.serialPuts(pynmea.fd, data)
         print('Result: {}'.format(result))
-        s = gen.send(None)
+        pynmea_string = gen.send(None)
