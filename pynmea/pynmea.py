@@ -39,24 +39,23 @@ class NMEA(object):
         elif time:
             t = arrow.get(time, 'HHmmss')
         else:
-            t = None
+            t = arrow.now()
 
         if date:
             d = arrow.get(date, 'DDMMYY')
         else:
-            d = None
+            d = arrow.now()
 
-        if not (d or t):
-            timestamp = None
-        elif d and t:
-            timestamp = d.get(hour=t.hour,
-                              minute=t.minute,
-                              second=t.second,
-                              microsecond=t.microsecond)
-        elif not d:
-            timestamp = date.replace()
-        elif not t:
-            timestamp = time.replace()
+        timestamp = arrow.Arrow(
+            year=d.year,
+            month=d.month,
+            day=d.day,
+            hour=t.hour,
+            minute=t.minute,
+            second=t.second,
+            microsecond=t.microsecond
+        )
+
         return timestamp
 
     def __str__(self):
